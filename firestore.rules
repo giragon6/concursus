@@ -2,18 +2,79 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidPost() {
+      return request.resource.data.title is string &&
+             request.resource.data.title.size() > 0 &&
+             request.resource.data.title.size() < 100 &&
+             request.resource.data.posterId == request.auth.uid &&
+             request.resource.data.createdAt is timestamp &&
+             (request.resource.data.description == null || 
+              (request.resource.data.description is string && 
+               request.resource.data.description.size() < 2000)) &&
+             (request.resource.data.tags == null || 
+              request.resource.data.tags is list);
+    }
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
+    function isValidAnswer() {
+      return request.resource.data.text is string &&
+             request.resource.data.text.size() > 0 &&
+             request.resource.data.text.size() < 5000 &&
+             request.resource.data.votes is number &&
+             (request.resource.data.userVotes is list || 
+              !request.resource.data.keys().hasAny(['userVotes']));
+    }
+
+    // Posts collection rules
+    match /posts/{postId} {
+      // Everyone can read posts
+      allow read;
+
+      // Only authenticated users can create posts 
+      allow create: if isSignedIn() && isValidPost();
+      
+      // Only the post owner can update or delete posts
+      allow update: if isSignedIn() && isOwner(resource.data.posterId) && isValidPost();
+      allow delete: if isSignedIn() && isOwner(resource.data.posterId);
+      
+      // Answers subcollection rules
+      match /answers/{answerId} {
+        // Everyone can read answers
+        allow read;
+        
+        // Only authenticated users can create valid answers
+        allow create: if isSignedIn() && isValidAnswer();
+        
+        // Only allow updates for voting, preserving the text content
+        allow update: if isSignedIn() && 
+                        request.resource.data.text == resource.data.text &&
+                        request.resource.data.votes is number;
+        
+        // Only the post owner can delete answers
+        allow delete: if isSignedIn() && get(/databases/$(database)/documents/posts/$(postId)).data.posterId == request.auth.uid;
+      }
+    }
+    
+    // User profiles collection rules
+    match /users/{userId} {
+      // Users can read any profile
+      allow read;
+      
+      // Users can only write to their own profile
+      allow write: if isSignedIn() && isOwner(userId);
+    }
+    
+    // Default deny all other requests
     match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2025, 4, 1);
+      allow read, write: if false;
     }
   }
 }
