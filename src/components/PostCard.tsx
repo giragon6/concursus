@@ -99,9 +99,9 @@ const PostCard: React.FC<{ post: PostProps; currentUser: User | null }> = ({
             />
           </svg>
         </div>
-        <div className="bg-burntorange rounded-xl w-full mt-2 p-3">
+        {/* <div className="bg-burntorange rounded-xl w-full mt-2 p-3">
           <h1 className="text-eggshell">ai summary here based off of responses?</h1>
-        </div>
+        </div> */}
       </div>
 
     </Link>

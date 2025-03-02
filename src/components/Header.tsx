@@ -86,14 +86,14 @@ export default function Header({ initialUser }: HeaderProps) {
   };
 
   return (
-    <header className="bg-eggshell flex justify-between items-center">
-      <Link href="/" className="logo h-[20%] mx-3">
-        <img src="/weblogo.svg" alt="Concursus" style={{ width: '15%', height: 'auto' }}/>
+    <header className="bg-eggshell flex justify-between items-center mx-auto">
+      <Link href="/" className="mx-3 w-1/4 mt-5">
+        <img src="/weblogo.svg" alt="Concursus" className="w-1/6"/>
       </Link>
-      <h1 className="font-bold text-5xl mx-auto">Concursus</h1>
+      <h1 className="font-bold text-5xl mx-auto mt-5">Concursus</h1>
       
       {user ? (
-        <div className="profile ml-auto flex items-center gap-2">
+        <div className="profile ml-auto flex items-center gap-2 mt-5">
           <img
             className="profileImage w-8 h-8 rounded-full"
             src={user.photoURL || "/profile.svg"}

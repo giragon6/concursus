@@ -16,7 +16,7 @@ const NewPostButton: React.FC = () => {
         onClick={openModal}
         onMouseEnter={() => setIsTooltipVisible(true)}
         onMouseLeave={() => setIsTooltipVisible(false)}
-        className="relative fixed bottom-6 right-6 flex items-center justify-center w-14 h-14 bg-burntorange hover:bg-amber-700 text-white rounded-full shadow-lg transition-all duration-300"
+        className="relative fixed bottom-1 left-144 flex items-center justify-center w-14 h-14 bg-burntorange hover:bg-amber-700 text-white rounded-full shadow-lg transition-all duration-300"
         aria-label="Create new post"
         title="Add Post" // This can be removed if you want to use the tooltip only
       >
